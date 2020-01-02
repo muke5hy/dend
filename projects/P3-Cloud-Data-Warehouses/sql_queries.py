@@ -92,11 +92,12 @@ time_table_create = ("""CREATE TABLE IF NOT EXISTS time
 
 # STAGING TABLES
 staging_events_copy = ("""copy staging_events from '{}'
-credentials 'aws_iam_role={}'
+credentials 'aws_iam_role=arn:aws:iam::{}:role/{}'
 compupdate off region '{}' FORMAT AS JSON '{}'
 TIMEFORMAT as 'epochmillisecs'
 TRUNCATECOLUMNS BLANKSASNULL EMPTYASNULL;
 """).format(config['S3'].get('LOG_DATA'),
+            config['CLUSTER'].get('ACCOUNT_ID'),
             config['CLUSTER'].get('DWH_IAM_ROLE_NAME').strip("'"),
             config['AWS'].get('AWS_REGION'),
             config['S3'].get('LOG_JSONPATH')
@@ -104,11 +105,12 @@ TRUNCATECOLUMNS BLANKSASNULL EMPTYASNULL;
 
 staging_songs_copy = ("""copy staging_songs
 from '{}'
-credentials 'aws_iam_role={}'
+credentials 'aws_iam_role=arn:aws:iam::{}:role/{}'
 compupdate off region '{}'
 FORMAT AS JSON 'auto'
 TRUNCATECOLUMNS BLANKSASNULL EMPTYASNULL;
 """).format(config['S3'].get('SONG_DATA'),
+            config['CLUSTER'].get('ACCOUNT_ID'),
             config['CLUSTER'].get('DWH_IAM_ROLE_NAME').strip("'"),
             config['AWS'].get('AWS_REGION')
 )
