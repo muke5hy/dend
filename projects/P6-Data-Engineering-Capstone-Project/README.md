@@ -1,4 +1,4 @@
-# Data Engineering Nanodegree - Capstone Project
+# DEND - Capstone Project
 
 ## Introduction
 This is the final project for the Data Engineer Nanodegree. Udacity gives us the option to use their suggested project or pick one dataset and scope it by ourselves. In my case I went for the second option. The dataset I will use on this project is from a service called [Yelp](https://www.yelp.ie), which basically stores business reviews given by customers.
@@ -25,7 +25,7 @@ There are in total five JSON files included in the original data source:
 I eventually pre-process `yelp_academic_dataset_business.json` to make it a `csv` file, as the project request at least two different files format.
 
 ### Storage
-The files were uploaded to a [S3 bucket](s3://udac-dend-capstone-dz/), which is open for access. The total space utilised on that bucket is approximately 8 gb, which is a considerable amount of data.
+The files were uploaded to a [S3 bucket](s3://udacity-dend-mukesh-output/yelp-dataset/). The total space utilised on that bucket is approximately 8 gb, which is a considerable amount of data.
 
 
 ## Project Scope
@@ -49,10 +49,10 @@ Those tools are widely utilised and considered industry standards. The community
 
 Apache Airflow, in special, gives freedom to create new plugins and adapt it to any needs that we might have. There are also several plugins available to use.
 
-## Data Model
+## Data Model and Data Dictionary
 The final data model include seven tables, being five of them dimensions and two facts.
 
-![Data Model](https://i.ibb.co/LxXdhbm/Screenshot-2019-08-01-at-20-17-36.png)
+![Data Model](yelp.png)
 
 As mentioned, the schema is closer to Snowflake as we have many-to-many relationships, covered by a bridge table.
 
@@ -61,88 +61,6 @@ As mentioned, the schema is closer to Snowflake as we have many-to-many relation
 - `dim_cities` stores information about dim_cities
 - `dim_business` has information about the business that receive reviews or tips by Yelp users.
 - `dim_category` has information about categories. One business may have many categories and that's why there is a table called `bridge_business_category`.
-
-### Data Dictionary
-
-`dim_users`
-
-Field | Type | PK | FK
-------| ----- | ---- | ----
-user_id | varchar | Yes
-name | varchar
-yelping_since | varchar | | dim_times
-
-`dim_times`
-
-Field | Type | PK | FK
-------| ----- | ---- | ----
-datetime | timestamp | Yes
-hour | int
-minute | int
-day | int
-month | int
-year | int
-quarter | int
-weekday | int
-yearday | int
-
-`dim_cities`
-
-Field | Type | PK | FK
-------| ----- | ---- | ----
-city_id | varchar | Yes
-state | varchar
-city | varchar
-
-`dim_business`
-
-Field | Type | PK | FK
-------| ----- | ---- | ----
-business_id | varchar | Yes
-name | varchar
-latitude | float
-longitude | float
-city_id | varchar | | dim_cities
-full_address | varchar
-
-`dim_category`
-
-Field | Type | PK | FK
-------| ----- | ---- | ----
-category_id | varchar | Yes
-category | varchar
-
-`bridge_business_category`
-
-Field | Type | PK | FK
-------| ----- | ---- | ----
-bridge_business_category_id | varchar | Yes
-business_id | varchar
-category_id | varchar
-
-`fact_tip`
-
-Field | Type | PK | FK
-------| ----- | ---- | ----
-tip_id | varchar | Yes
-user_id | varchar | | dim_users
-business_id | varchar | | dim_business
-text | varchar
-compliment_count | int
-
-`fact_review`
-
-Field | Type | PK | FK
-------| ----- | ---- | ----
-review_id | varchar | Yes
-user_id | varchar | | dim_users
-business_id | varchar | | dim_business
-stars | float
-useful | int
-funny | int
-cool | int
-text | varchar
-date | timestamp | | dim_times
 
 
 ## Scenarios
@@ -162,16 +80,14 @@ The Data pipeline is spread into twelve tasks, being:
 4. `process_foreign_keys` will just create the foreign keys between the tables. This is not done on the creation due to the sequence of the execution.
 5. `run_data_quality_checks` will execute Data Quality against the data.
 
-![DAG](https://i.ibb.co/GMNwWdR/Screenshot-2019-07-31-at-20-20-06.png)
+![DAG](dag.png)
 
 ### Data Ingestion
 The first step is read the data from S3 into Redshift. This is done through the `S3ToRedshiftOperator`. In this project I've decided to use a plugin that is available at the [Airflow-Plugins](https://github.com/airflow-plugins/redshift_plugin) Github page.
 
 That plugin has some advantages over the `contrib` option, like the automatic creation of the tables.
 
-This process is handle by a `SubDag` and the following tasks are covered.
-
-![SubDag](https://i.ibb.co/RpKMWmP/Screenshot-2019-08-01-at-20-06-43.png)
+This process is handle by a `SubDag`     
 
 That SubDag is dynamically generated according to the configuration file `/dags/configuration/copy_from_s3_to_redshift.py`. It means that if more tasks are needed then all that is required is to add new details to that file.
 
@@ -221,12 +137,12 @@ It's assumed that there is an Airflow instance up and running.
 ### Create AWS connection
 Setup a new connection on Airflow called `aws_credentials` according to the following example.
 
-![](https://i.ibb.co/wrnbMTc/Screenshot-2019-08-01-at-20-45-14.png)
+![](aws-con.png)
 It's important to fill the Extra field with the respective `aws_access_key_id` and `aws_secret_access_key` as a JSON object. This is necessary and the DAG won't work without that configuration.
 
 ```JSON
 {
-   "aws_access_key_id": "AKIAYLC37GRFVANBDO43",
+   "aws_access_key_id": "YOUR-ACCESS-KEY",
    "aws_secret_access_key": "xxxxxxxx"
 }
 ```
@@ -234,7 +150,7 @@ It's important to fill the Extra field with the respective `aws_access_key_id` a
 ### Create Redshift Connection
 Setup a new connection on Airflow called `redshift`, according to the following example.
 
-![](https://i.ibb.co/PtXbPdj/Screenshot-2019-08-01-at-20-49-19.png)
+![](redshift-con.png)
 
 ### Execute the DAG
 Having the configuration finished, then just turn the DAG on and run it manually.
