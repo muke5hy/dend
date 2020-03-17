@@ -41,9 +41,12 @@ The outcome is a set of tables that make easier complex queries and at the same 
 ## Tooling
 The tools utilised on this project are the same as we have been learning during the course of this Nanodegree.
 
-- `Amazon S3` for File Storage
-- `Amazon Redshift` for Data Storage
-- `Apache Airflow` as an Orchestration Tool
+- `Amazon S3` for File Storage  
+![S3](images/s3-logo.png)  
+- `Amazon Redshift` for Data Storage  
+![Data Model](images/redshift-logo.png)
+- `Apache Airflow` as an Orchestration Tool  
+![AirFlow](images/airflow-logo.png)
 
 Those tools are widely utilised and considered industry standards. The community is massive and the tools provide support to several features.
 
@@ -52,7 +55,7 @@ Apache Airflow, in special, gives freedom to create new plugins and adapt it to 
 ## Data Model and Data Dictionary
 The final data model include seven tables, being five of them dimensions and two facts.
 
-![Data Model](yelp.png)
+![Data Model](images/yelp.png)
 
 As mentioned, the schema is closer to Snowflake as we have many-to-many relationships, covered by a bridge table.
 
@@ -80,7 +83,7 @@ The Data pipeline is spread into twelve tasks, being:
 4. `process_foreign_keys` will just create the foreign keys between the tables. This is not done on the creation due to the sequence of the execution.
 5. `run_data_quality_checks` will execute Data Quality against the data.
 
-![DAG](dag.png)
+![DAG](images/dag.png)
 
 ### Data Ingestion
 The first step is read the data from S3 into Redshift. This is done through the `S3ToRedshiftOperator`. In this project I've decided to use a plugin that is available at the [Airflow-Plugins](https://github.com/airflow-plugins/redshift_plugin) Github page.
@@ -137,7 +140,7 @@ It's assumed that there is an Airflow instance up and running.
 ### Create AWS connection
 Setup a new connection on Airflow called `aws_credentials` according to the following example.
 
-![](aws-con.png)
+![](images/aws-con.png)
 It's important to fill the Extra field with the respective `aws_access_key_id` and `aws_secret_access_key` as a JSON object. This is necessary and the DAG won't work without that configuration.
 
 ```JSON
@@ -150,7 +153,7 @@ It's important to fill the Extra field with the respective `aws_access_key_id` a
 ### Create Redshift Connection
 Setup a new connection on Airflow called `redshift`, according to the following example.
 
-![](redshift-con.png)
+![](images/redshift-con.png)
 
 ### Execute the DAG
 Having the configuration finished, then just turn the DAG on and run it manually.
