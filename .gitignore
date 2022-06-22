@@ -9,6 +9,8 @@ chronograf-v1.db
 # C extensions
 *.so
 
+._.DS_Store
+
 # Distribution / packaging
 .Python
 build/
